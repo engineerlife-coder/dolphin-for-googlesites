@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Wii Emulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      text-align: center;
+      padding: 20px;
+    }
+    #emulatorCanvas {
+      border: 2px solid #000;
+      width: 640px;
+      height: 480px;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Wii Emulator</h1>
+  <p>Upload your Wii game file (.iso or .wbfs) to start playing.</p>
+  <canvas id="emulatorCanvas" width="640" height="480"></canvas>
+  <br><br>
+  <input type="file" id="romUploader" accept=".iso, .wbfs" />
+
+  <script src="dolphin.js"></script>
+  <script>
+    const canvas = document.getElementById('emulatorCanvas');
+    const romUploader = document.getElementById('romUploader');
+
+    let dolphinInstance;
+
+    romUploader.addEventListener('change', async (event) => {
+      const romFile = event.target.files[0];
+      if (romFile) {
+        try {
+          const arrayBuffer = await romFile.arrayBuffer();
+          // Assuming dolphin.js exposes a function to start the emulator
+          dolphinInstance = new DolphinWasmModule({
+            canvas: canvas,
+            gameData: new Uint8Array(arrayBuffer)
+          });
+          dolphinInstance.run();
+        } catch (error) {
+          console.error('Error loading ROM:', error);
+          alert('Failed to load the game file. Please try again with a valid Wii game file.');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
