@@ -26,6 +26,8 @@
   <input type="file" id="romUploader" accept=".iso, .wbfs" />
 
   <script src="dolphin.js"></script>
+  <script src="dolphin.wasm.js"></script>
+  <script src="dolphin.module.js"></script>
   <script>
     const canvas = document.getElementById('emulatorCanvas');
     const romUploader = document.getElementById('romUploader');
@@ -37,12 +39,13 @@
       if (romFile) {
         try {
           const arrayBuffer = await romFile.arrayBuffer();
-          // Assuming dolphin.js exposes a function to start the emulator
-          dolphinInstance = new DolphinWasmModule({
-            canvas: canvas,
-            gameData: new Uint8Array(arrayBuffer)
+          // Initialize the emulator with the WASM module
+          DolphinWasmModule().then((Module) => {
+            dolphinInstance = Module;
+            Module.setCanvas(canvas);
+            Module.setGameData(new Uint8Array(arrayBuffer));
+            Module.run();
           });
-          dolphinInstance.run();
         } catch (error) {
           console.error('Error loading ROM:', error);
           alert('Failed to load the game file. Please try again with a valid Wii game file.');
